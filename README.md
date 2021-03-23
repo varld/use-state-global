@@ -20,6 +20,8 @@ npm install --save use-state-global
 
 ## Usage
 
+### Basic Hook
+
 ```tsx
 import createGlobalState from 'use-state-global';
 
@@ -34,20 +36,44 @@ let Component = () => {
   return (
     <div>
       Count: {count}
-
       <button onClick={() => setState({ count: count + 1 })}>Add 1</button>
     </div>
-  )
+  );
 };
 
 let OtherComponent = () => {
   let [state] = useGlobalState();
 
+  return <div>Same count as the other one: {count}</div>;
+};
+```
+
+### Accessing state from the outside
+
+```tsx
+import createGlobalState from 'use-state-global';
+
+let useGlobalState = createGlobalState({
+  // initial state
+  count: 1
+});
+
+// Set state from outside
+useGlobalState.setState({ count: 5 });
+
+// Get state from outside
+console.log(useGlobalState.getState());
+// > { count: 5 }
+
+let Component = () => {
+  let [state, setState] = useGlobalState();
+
   return (
     <div>
-      Same count as the other one: {count}
+      Count: {count}
+      <button onClick={() => setState({ count: count + 1 })}>Add 1</button>
     </div>
-  )
+  );
 };
 ```
 

@@ -10,7 +10,7 @@ describe('use-delayed', () => {
     expect(typeof createGlobalState({})).toEqual('function');
   });
 
-  it('caches data', async () => {
+  it('syncs data', async () => {
     let useState = createGlobalState({
       count: 0
     });
@@ -36,5 +36,38 @@ describe('use-delayed', () => {
 
     expect(result2.current.state.count).toBe(5);
     expect(result1.current.state.count).toBe(5);
+  });
+
+  it('can be accessed from outside', async () => {
+    let useState = createGlobalState({
+      count: 0
+    });
+
+    let handler = () => {
+      let [state, setState] = useState();
+
+      return {
+        state,
+        setState
+      };
+    };
+
+    let { result: result1 } = renderHook(() => handler());
+    expect(result1.current.state.count).toBe(0);
+    expect(useState.getState().count).toBe(0);
+
+    act(() => {
+      result1.current.setState({ count: 5 });
+    });
+
+    expect(result1.current.state.count).toBe(5);
+    expect(useState.getState().count).toBe(5);
+
+    act(() => {
+      useState.setState({ count: 10 });
+    });
+
+    expect(result1.current.state.count).toBe(10);
+    expect(useState.getState().count).toBe(10);
   });
 });
